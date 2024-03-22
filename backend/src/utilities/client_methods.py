@@ -79,6 +79,7 @@ def delete_client(client_id):
 def update_status(client_id, status):
     sql = text("""UPDATE clients SET active=:active WHERE id=:id""")
     db.session.execute(sql, {"id": client_id, "active": status})
+    delete_deadlines(client_id)
     return get_client_data(client_id)
 
 def get_email(client_id):
@@ -86,6 +87,18 @@ def get_email(client_id):
     result = db.session.execute(sql, {"id":client_id}).fetchone()
     if result:
         return result.email
+    return None
+
+def get_status(client_email):
+    sql = text("SELECT active FROM clients WHERE email=:email")
+    result = db.session.execute(sql, {"email":client_email}).fetchone()
+    return result.active
+
+def get_phonenumber(client_id):
+    sql = text("SELECT phonenumber FROM clients WHERE id=:id")
+    result = db.session.execute(sql, {"id":client_id}).fetchone()
+    if result:
+        return result.phonenumber
     return None
 
 def get_clients_deadlines():
@@ -109,6 +122,8 @@ def validate_client_data(client_data):
     return True
 
 def validate_email(email):
+    if not re.match(r"^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$", email):
+        raise ValueError('Sähköposti ei ole oikeassa muodossa')
     if email_is_user(email):
         raise ValueError('Tällä sähköpostilla on jo luotu tunnukset, anna toinen sähköposti')
     return True

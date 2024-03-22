@@ -1,15 +1,18 @@
+// ./ (asiakas)
 import { useSelector, useDispatch } from 'react-redux'
 import { useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import Notification from './Notification'
 import { Table } from 'react-bootstrap'
 import { getFile } from '../reducers/fileReducer'
 import FileHandler from './FileHandler'
+import DueDateBadge from './DueDateBadge'
 
 const HomeClient = () => {
   const dispatch = useDispatch()
   const user = useSelector(({ user }) => user)
   const client = useSelector(({ clients }) => clients).find(c => c.email === user.username)
-  const files = useSelector(({ file }) => file).filter(c => c.owner === client.id)
+  const files = useSelector(({ file }) => file).filter(f => f.owner === client.id && f.delete_date === null)
 
   useEffect(() => {
     if (user && client) {
@@ -37,10 +40,10 @@ const HomeClient = () => {
             <tbody key={client.email}>
               <tr><td>Y-tunnus</td><td>{client.bi_code}</td></tr>
               <tr><td>Eräpäivät</td><td>{client.deadlines.map(date =>
-                (<div key={date}>
+                <div key={date}>
                   {new Date(date).toLocaleString('fi-FI',
                     { weekday: 'short', year: 'numeric', month: 'numeric', day: 'numeric' })}
-                </div>))}</td></tr>
+                  {' '} {date == client.deadlines[0] && <DueDateBadge client={client} />} </div>)}</td></tr>
               <tr><td>Palkkakausi</td><td>{client.payperiod}</td></tr>
             </tbody>
           </Table>

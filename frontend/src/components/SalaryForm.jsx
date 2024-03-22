@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+// ./client/{client.id}/salaryform (Palkkatietolomake, vain asiakkaille)
+import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import { useField } from '../hooks'
 import { DateSelect } from '../hooks/DatePicker'
 import SalaryFormContent from './SalaryFormContent'
@@ -10,7 +11,10 @@ const SalaryForm = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const location = useLocation()
+  const { id: ParamClientId } = useParams()
   const user = useSelector(({ user }) => user)
+  const clients = useSelector(({ clients }) => clients)
+  const client = clients.find(c => c.email === user.username)
   const {
     clientId,
     clientName,
@@ -19,6 +23,7 @@ const SalaryForm = () => {
     clientCode,
     clientPeriod,
   } = location.state || {}
+  const urlClientId = Number(ParamClientId)
   const [employees, setEmployees] = useState([])
   const [formType, setFormType] = useState('monthly')
 
@@ -32,9 +37,14 @@ const SalaryForm = () => {
   const total_hours = useField()
   const extra = useField()
 
-  if (!user) {
-    return ('Et ole kirjautunut sisään')
-  }
+  useEffect(() => {
+    if (!user) {
+      navigate('/login')
+    } else if (!client || client.id !== urlClientId) {
+      console.error('Unauthorized access or client not found.')
+      navigate('/')
+    }
+  }, [user, client, urlClientId, navigate])
 
   const handleSubmit = async (event) => {
     event.preventDefault()

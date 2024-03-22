@@ -1,8 +1,13 @@
-import { formatDistanceToNow, isPast } from 'date-fns'
+import { formatDistanceToNow, isPast, endOfDay } from 'date-fns'
 import Badge from 'react-bootstrap/Badge'
 
-const DueDateBadge = ({ client, now }) => {
+const DueDateBadge = ({ client }) => {
+  const now = endOfDay(new Date())
   const late = isPast(client.deadlines[0])
+
+  if (!client.deadlines[0]) {
+    return
+  }
 
   if (late) {
     return (

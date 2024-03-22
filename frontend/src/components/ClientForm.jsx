@@ -1,3 +1,4 @@
+// ./client (Lisää asiakas)
 import { useDispatch, useSelector } from 'react-redux'
 import { useField } from '../hooks/index'
 import { addClient } from '../reducers/clientsReducer'
@@ -6,6 +7,10 @@ import { Form, Button } from 'react-bootstrap'
 import { DateSelect } from '../hooks/DatePicker'
 import DatePicker from 'react-multi-date-picker'
 import { useState } from 'react'
+import days from './ReminderInfo'
+
+const { weekDays, months } = days
+const weekDaysSorted = weekDays.slice(6).concat(weekDays.slice(0, 6))
 
 const ClientForm = () => {
   const dispatch = useDispatch()
@@ -85,7 +90,7 @@ const ClientForm = () => {
           <Form.Group>
             <Form.Label>Eräpäivät:</Form.Label>
             <div className="form-control">
-              <DatePicker id="deadlines" {...deadlines} style={style} multiple />
+              <DatePicker id="deadlines" {...deadlines} style={style} multiple months={months} weekDays={weekDaysSorted} weekStartDayIndex={1}/>
             </div>
           </Form.Group>
           <Form.Group>
